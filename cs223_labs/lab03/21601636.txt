@@ -1,0 +1,234 @@
+
+module decoder3_8(input logic a, b, c,
+                    output logic y0,y1,y2,y3,y4,y5,y6,y7);
+        assign y0=(~a&~b&~c);
+		assign y1=(~a&~b&c);
+		assign y2=(~a&b&~c);
+        assign y3=(~a&b&c);
+		assign y4=(a&~b&~c);
+		assign y5=(a&~b&c);
+		assign y6=(a&b&~c);
+		assign y7=(a&b&c);
+
+endmodule
+module decoderTest();
+    logic a,b,c, d0,d1,d2,d3,d4,d5,d6,d7;
+    
+    decoder3_8 uut(a,b,c, d0,d1,d2,d3,d4,d5,d6,d7);
+    initial begin
+        a = 0; b = 0; c = 0; #10;
+        a = 0; b = 0; c = 1; #10;
+        a = 0; b = 1; c = 0; #10;
+        a = 0; b = 1; c = 1; #10;
+        a = 1; b = 0; c = 0; #10;
+        a = 1; b = 0; c = 1; #10;
+        a = 1; b = 1; c = 0; #10;
+        a = 1; b = 1; c = 1; #10;
+    end
+endmodule
+## Switches
+set_property PACKAGE_PIN V17 [get_ports a]					
+	set_property IOSTANDARD LVCMOS33 [get_ports a]
+set_property PACKAGE_PIN V16 [get_ports b]					
+	set_property IOSTANDARD LVCMOS33 [get_ports b]
+set_property PACKAGE_PIN W16 [get_ports c]					
+	set_property IOSTANDARD LVCMOS33 [get_ports c]
+
+
+
+## LEDs
+set_property PACKAGE_PIN U16 [get_ports y0]					
+	set_property IOSTANDARD LVCMOS33 [get_ports y0]
+set_property PACKAGE_PIN E19 [get_ports y1]					
+	set_property IOSTANDARD LVCMOS33 [get_ports y1]
+set_property PACKAGE_PIN U19 [get_ports y2]					
+    set_property IOSTANDARD LVCMOS33 [get_ports y2]
+set_property PACKAGE_PIN V19 [get_ports y3]					
+	set_property IOSTANDARD LVCMOS33 [get_ports y3]
+set_property PACKAGE_PIN W18 [get_ports y4]					
+	set_property IOSTANDARD LVCMOS33 [get_ports y4]
+set_property PACKAGE_PIN U15 [get_ports y5]					
+	set_property IOSTANDARD LVCMOS33 [get_ports y5]
+set_property PACKAGE_PIN U14 [get_ports y6]					
+	set_property IOSTANDARD LVCMOS33 [get_ports y6]
+set_property PACKAGE_PIN V14 [get_ports y7]					
+	set_property IOSTANDARD LVCMOS33 [get_ports y7]
+
+module and_gate(input a,b, output c);
+    assign c = a & b;
+endmodule
+
+module or_gate(input d,e, output f);
+    assign f = d | e;
+endmodule
+
+module not_gate(input g, output h);
+    assign h = ~g;
+endmodule
+
+module mux4_1( a, b, c, d, s0, s1, out );
+    input wire a,b,c,d;
+    input wire s0,s1;
+    output reg out;
+    
+    always @ (a or b or c or d or s0 or s1)
+    begin
+    
+        case(s0|s1)
+        2'b00 : out <= a;
+        2'b00 : out <= b;
+        2'b00 : out <= c;
+        2'b00 : out <= d;
+        endcase
+    end
+endmodule
+
+module mux8_1(a,b,c,d,e,f,g,h,s2,s1,s0,out);
+    input a, b, c, d, e, f, g, h, s2, s1, s0;
+    output out;
+
+    wire s2bar, t1, t2, t3, t4;
+
+    not_gate u1(s2,s2bar);
+    mux4_1 u2(a,b,c,d,s0,s1,t1);
+    mux4_1 u3(e,f,g,h,s0,s1,t2);
+    and_gate u4(t1,s2bar,t3);
+    and_gate u5(t2,s2,t4);
+    or_gate u6(t3,t4,out);
+
+endmodule
+
+module mux8_1test;
+    reg a,b,c,d,e,f,g,h,s0,s1,s2;
+    wire out;
+    
+    mux8_1 mux(.a(a), .b(b), .c(c), .d(d), .e(e), .f(f), .g(g), .h(h), .s0(s0), .s1(s1), .s2(s2), .out(out));
+    initial begin
+        a = 1'b0;
+        b = 1'b0;
+        c = 1'b0;
+        d = 1'b0;
+        e = 1'b0;
+        f = 1'b0;
+        g = 1'b0;
+        h = 1'b0;
+        s0 = 1'b0;
+        s1 = 1'b0;
+        s2 = 1'b0;
+        
+        #45 $finish;
+    end
+    
+     always #2 a = ~a;
+     always #4 b = ~b;
+     always #6 c = ~c;
+     always #8 d = ~d;
+     always #10 e = ~e;
+     always #12 f = ~f;
+     always #14 g = ~g;
+     always #16 h = ~h;
+     always #3 s0 = ~s0;
+     always #3 s1 = ~s1;
+     always #3 s2 = ~s2;
+     always @ (out)
+     $display("time=%0t INPUT VALUES:\t a=%b b=%b c=%b d=%b e=%b f=%b g=%b h=%b s0=%b s1=%b s2=%b \t OUTPUT VALUE: out=%b",$time,a,b,c,d,e,f,g,h,s0,s1,s2,out);
+endmodule
+
+## Switches
+set_property PACKAGE_PIN V17 [get_ports a]					
+	set_property IOSTANDARD LVCMOS33 [get_ports a]
+set_property PACKAGE_PIN V16 [get_ports b]					
+	set_property IOSTANDARD LVCMOS33 [get_ports b]
+set_property PACKAGE_PIN W16 [get_ports c]					
+	set_property IOSTANDARD LVCMOS33 [get_ports c]
+set_property PACKAGE_PIN W17 [get_ports d]					
+	set_property IOSTANDARD LVCMOS33 [get_ports d]
+set_property PACKAGE_PIN W15 [get_ports e]					
+	set_property IOSTANDARD LVCMOS33 [get_ports e]
+set_property PACKAGE_PIN V15 [get_ports f]					
+	set_property IOSTANDARD LVCMOS33 [get_ports f]
+set_property PACKAGE_PIN W14 [get_ports g]					
+	set_property IOSTANDARD LVCMOS33 [get_ports g]
+set_property PACKAGE_PIN W13 [get_ports h]					
+	set_property IOSTANDARD LVCMOS33 [get_ports h]
+set_property PACKAGE_PIN V2 [get_ports s0]					
+	set_property IOSTANDARD LVCMOS33 [get_ports s0]
+set_property PACKAGE_PIN T3 [get_ports s1]					
+	set_property IOSTANDARD LVCMOS33 [get_ports s1]
+set_property PACKAGE_PIN T2 [get_ports s2]					
+	set_property IOSTANDARD LVCMOS33 [get_ports s2]
+
+
+## LEDs
+set_property PACKAGE_PIN U16 [get_ports out]					
+	set_property IOSTANDARD LVCMOS33 [get_ports out]
+
+
+
+module fun( a, b, c, d, out );
+    
+    input a, b, c, d;
+    output out;
+    
+    wire t1;
+    
+    not_gate(d,t1);
+    mux8_1(d,t1,0,d,1,t1,1,0,out);
+    
+endmodule
+
+module funtest();
+    reg a,b,c,d,e,f,g,h,s0,s1,s2;
+    wire out;
+    
+    mux8_1 mux(.a(a), .b(b), .c(c), .d(d), .e(e), .f(f), .g(g), .h(h), .s0(s0), .s1(s1), .s2(s2), .out(out));
+    initial begin
+        a = 1'b0;
+        b = 1'b0;
+        c = 1'b0;
+        d = 1'b0;
+        e = 1'b0;
+        f = 1'b0;
+        g = 1'b0;
+        h = 1'b0;
+        s0 = 1'b0;
+        s1 = 1'b0;
+        s2 = 1'b0;
+        
+        #45 $finish;
+    end
+    
+     always #2 a = ~a;
+     always #4 b = ~b;
+     always #6 c = ~c;
+     always #8 d = ~d;
+     always #10 e = ~e;
+     always #12 f = ~f;
+     always #14 g = ~g;
+     always #16 h = ~h;
+     always #3 s0 = ~s0;
+     always #3 s1 = ~s1;
+     always #3 s2 = ~s2;
+     always @ (out)
+     $display("time=%0t INPUT VALUES:\t a=%b b=%b c=%b d=%b e=%b f=%b g=%b h=%b s0=%b s1=%b s2=%b \t OUTPUT VALUE: out=%b",$time,a,b,c,d,e,f,g,h,s0,s1,s2,out);
+
+endmodule
+
+## Switches
+set_property PACKAGE_PIN V17 [get_ports a]					
+	set_property IOSTANDARD LVCMOS33 [get_ports a]
+set_property PACKAGE_PIN V16 [get_ports b]					
+	set_property IOSTANDARD LVCMOS33 [get_ports b]
+set_property PACKAGE_PIN W16 [get_ports c]					
+	set_property IOSTANDARD LVCMOS33 [get_ports c]
+set_property PACKAGE_PIN W17 [get_ports d]					
+	set_property IOSTANDARD LVCMOS33 [get_ports d]
+
+
+## LEDs
+set_property PACKAGE_PIN U16 [get_ports out]					
+	set_property IOSTANDARD LVCMOS33 [get_ports out]
+
+
+
+

@@ -1,0 +1,180 @@
+// Full ADDER STRUCTURAL
+
+module FullAdder(
+    input a,
+    input b,
+    input cin,
+    output s,
+    output cout
+    );
+    wire a1, a2, a3;
+	xor2 u1(a, b, a1);
+	and2 u2(a, b, a2);
+	xor2 u3(a1,cin,s);
+	and2 u4(a1, cin, a3);	
+	or2 u5(a3, a2, cout);
+endmodule
+
+
+module and2 (input logic a, input logic b, output logic y);
+    assign y = a&b;
+endmodule
+
+module or2 (input logic a, input logic b, output logic y);
+    assign y = a|b;
+endmodule
+
+module xor2(input logic a, input logic b, output logic y);
+	assign y = a^b;
+endmodule
+
+// Full ADDER TestBecnh for STRUCTURAL
+
+module adderTest();
+    logic a,b,cin;
+	logic s, cout;
+	   FullAdder dut(a, b, cin, s, cout);
+	initial begin
+		a = 0; b = 0; cin = 0; #10
+		cin = 1; #10;
+		b=1; cin = 0; #10;
+		cin = 1; #10;
+		a = 1; b = 0; cin = 0; #10;
+		cin = 1; #10;
+		b = 1; cin = 0; #10;
+		cin =1; #10;
+	end
+
+endmodule
+
+//full adder behavioral
+
+module behavioralfulladder( input logic a, b, cin,
+                            output logic s,cout);
+	logic p,g;
+	assign p = a^b;
+	assign g = a&b;
+	assign s = p^cin;
+	assign cout = g|(p&cin);
+   
+endmodule
+
+module bevioraladdertest();
+    logic a,b,cin;
+	logic s, cout;
+	   behavioralfulladder dut(a, b, cin, s, cout);
+	initial begin
+		a = 0; b = 0; cin = 0; #10
+		cin = 1; #10;
+		b=1; cin = 0; #10;
+		cin = 1; #10;
+		a = 1; b = 0; cin = 0; #10;
+		cin = 1; #10;
+		b = 1; cin = 0; #10;
+		cin =1; #10;
+	end
+
+endmodule
+
+// full subtractor
+
+module fullsubtractor(input logic a, b, bin, output logic d, bo);
+    logic n1, n2, n3, n4, n5, n6;
+	inv in1(a,n1);
+	and2 a1(n1,b,n2);
+	xor2 x1(a,b,n3);
+	xor2 x2(bin, n3, d);
+	inv in2(n3,n5);
+	and2 a2(n5,bin,n6);
+	or2 o1(n6,n2,bo);
+
+endmodule
+
+module inv (input logic a, output logic y);
+    assign y = ~a;
+endmodule
+
+module and2 (input logic a, input logic b, output logic y);
+    assign y = a&b;
+endmodule
+
+module or2 (input logic a, input logic b, output logic y);
+    assign y = a|b;
+endmodule
+
+module xor2(input logic a, input logic b, output logic y);
+	assign y = a^b;
+endmodule
+
+module subtractortest();
+    logic a,b,bin;
+	logic d, bo;
+	   fullsubtractor dut(a, b, bin, d, bo);
+	initial begin
+		a = 0; b = 0; bin = 0; #10
+		bin = 1; #10;
+		b=1; bin = 0; #10;
+		bin = 1; #10;
+		a = 1; b = 0; bin = 0; #10;
+		bin = 1; #10;
+		b = 1; bin = 0; #10;
+		bin =1; #10;
+	end
+endmodule
+
+// two bit adder
+
+module twobitadder(a, b, cin, s, cout);
+	input [1:0] a, b;
+	input cin;
+	output [1:0] s;
+	output cout;
+	wire c1, c2;
+
+	FullAdder fa0(a[0], b[0], cin, s[0], c1);
+	FullAdder fa1(a[1], b[1], c1, s[1], cout );
+endmodule
+
+module twobitaddertest();
+        logic [1:0] a, b;
+        logic cin;
+        logic [1:0] s;
+        logic cout;
+            twobitadder dut(a,b,cin,s,cout);
+        initial begin
+            a[0]=0; b[0]=0; a[1]=0; b[1]=0; cin=0; #10;
+            a[0]=0; b[0]=0; a[1]=0; b[1]=0; cin=1; #10;
+            a[0]=0; b[0]=0; a[1]=0; b[1]=1; cin=0; #10;
+            a[0]=0; b[0]=0; a[1]=0; b[1]=1; cin=1; #10;
+            a[0]=0; b[0]=0; a[1]=1; b[1]=0; cin=0; #10;
+            a[0]=0; b[0]=0; a[1]=1; b[1]=0; cin=1; #10;
+            a[0]=0; b[0]=0; a[1]=1; b[1]=1; cin=0; #10;
+            a[0]=0; b[0]=0; a[1]=1; b[1]=1; cin=1; #10;
+            a[0]=0; b[0]=1; a[1]=0; b[1]=0; cin=0; #10;
+            a[0]=0; b[0]=1; a[1]=0; b[1]=0; cin=1; #10;
+            a[0]=0; b[0]=1; a[1]=0; b[1]=1; cin=0; #10;
+            a[0]=0; b[0]=1; a[1]=0; b[1]=1; cin=1; #10;
+            a[0]=0; b[0]=1; a[1]=1; b[1]=0; cin=0; #10;
+            a[0]=0; b[0]=1; a[1]=1; b[1]=0; cin=1; #10;
+            a[0]=0; b[0]=1; a[1]=1; b[1]=1; cin=0; #10;
+            a[0]=0; b[0]=1; a[1]=1; b[1]=1; cin=1; #10;
+            a[0]=1; b[0]=0; a[1]=0; b[1]=0; cin=0; #10;
+            a[0]=1; b[0]=0; a[1]=0; b[1]=0; cin=1; #10;
+            a[0]=1; b[0]=0; a[1]=0; b[1]=1; cin=0; #10;
+            a[0]=1; b[0]=0; a[1]=0; b[1]=1; cin=1; #10;
+            a[0]=1; b[0]=0; a[1]=1; b[1]=0; cin=0; #10;
+            a[0]=1; b[0]=0; a[1]=1; b[1]=0; cin=1; #10;
+            a[0]=1; b[0]=0; a[1]=1; b[1]=1; cin=0; #10;
+            a[0]=1; b[0]=0; a[1]=1; b[1]=1; cin=1; #10;
+            a[0]=1; b[0]=1; a[1]=0; b[1]=0; cin=0; #10;
+            a[0]=1; b[0]=1; a[1]=0; b[1]=0; cin=1; #10;
+            a[0]=1; b[0]=1; a[1]=0; b[1]=1; cin=0; #10;
+            a[0]=1; b[0]=1; a[1]=0; b[1]=1; cin=1; #10;
+            a[0]=1; b[0]=1; a[1]=1; b[1]=0; cin=0; #10;
+            a[0]=1; b[0]=1; a[1]=1; b[1]=0; cin=1; #10;
+            a[0]=1; b[0]=1; a[1]=1; b[1]=1; cin=0; #10;
+            a[0]=1; b[0]=1; a[1]=1; b[1]=1; cin=1; #10;
+
+        end
+endmodule
+

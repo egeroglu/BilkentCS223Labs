@@ -1,0 +1,179 @@
+`timescale 1ns / 1ps
+
+
+module trafficTimer(input logic reset,
+                    input logic clk,
+                    output logic clkdivide);
+    localparam parametre = 200000000; 
+    logic counter;
+    always @ (posedge clk, posedge reset) 
+    begin
+        if (counter == parametre - 1)
+            clkdivide <= ~clkdivide;
+        else if (reset == 1) 
+            clkdivide <= 0;
+    end
+
+    always @(posedge clk or posedge reset)
+    begin 
+        if(reset == 1 && counter == parametre - 1)
+            counter <= 0;
+        else
+            counter <= counter + 1; 
+    end
+endmodule
+
+module trafficLightFsm(input logic clk,
+                    input logic rst,
+                    input logic Sa, Sb,
+                    output logic[2:0] La, Lb);
+    parameter S0 = 3'b000, S1 = 3'b001, S2 = 3'b010, S3 = 3'b011, S4 = 3'b100,S5 = 3'b101,S6 = 3'b110, S7 = 3'b111;
+    parameter Green = 3'b111, Yellow = 3'b011, Red = 3'b001;
+    logic[2:0] currS, nextS;
+
+    always_ff @(posedge clk)
+    if(rst)   currS <= S0;
+    else    currS <= nextS;
+    
+    always_comb
+    
+     case(currS)
+     S0: 
+        if(Sa)
+             nextS = S0;
+        else 
+             nextS = S1; 
+         
+     S1: 
+        nextS = S2;
+     
+     S2: 
+        nextS = S3;
+     
+     S3: 
+        nextS = S4;
+     
+     S4: 
+        if(Sb)
+             nextS = S4;
+        else 
+             nextS = S5;
+         
+     S5:
+        nextS = S6;
+     
+     S6:
+        nextS = S7;
+     
+     S7: 
+        nextS = S0; 
+   
+     default: 
+        nextS = S0;
+     
+   endcase
+   
+   always_ff @(currS)
+       case(currS)
+           S0: 
+               begin 
+                   La <= Green;
+                   Lb <= Red;
+               end
+           S1:
+                begin 
+                    La <= Yellow; 
+                    Lb <= Red; 
+                end
+           S2:
+                begin 
+                    La <= Red; 
+                    Lb <= Red;
+                end
+           S3:
+                begin
+                    La <= Red;
+                    Lb <= Yellow;
+                end
+           S4: 
+               begin 
+                   La <= Red;
+                   Lb <= Green;
+               end
+           S5: 
+               begin 
+                   La <= Red; 
+                   Lb <= Yellow;
+               end
+           S6: 
+               begin 
+                   La <= Red;
+                   Lb <= Red;
+               end
+           S7: 
+               begin 
+                   La <= Yellow;
+                   Lb <= Red;
+               end
+       endcase
+                    
+endmodule
+
+module trafficTestbench();
+    logic clk, reset, Sa, Sb;
+    logic[2:0] La, Lb;
+
+    trafficLightFsm dut(clk, reset, Sa, Sb, La, Lb);
+
+    always begin
+        clk <= 0;
+        #10;
+        clk <= 1;
+        #10;
+    end 
+ 
+    initial begin
+        reset <= 1;
+        Sa <= 0;
+        Sb <= 0;
+        @(posedge clk);
+        #5 
+        reset <= 0;
+        @(posedge clk);
+        #5
+        Sa <= 0;
+        Sb <=1;
+        @(posedge clk);
+        #5 
+        Sa <= 1;
+        Sb <= 0;
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
+    end
+endmodule
+
+
+set_property PACKAGE_PIN W5 [get_ports clk]
+    set_property IOSTANDARD LVCMOS33 [get_ports clk]
+    create_clock -add -name sys_clk_pin -period 10.00 -waveform {0 5} [get_ports clk]
+
+set_property PACKAGE_PIN V17 [get_ports {rst}]
+    set_property IOSTANDARD LVCMOS33 [get_ports {rst}]
+set_property PACKAGE_PIN T1 [get_ports {Sb}]
+    set_property IOSTANDARD LVCMOS33 [get_ports {Sb}]
+set_property PACKAGE_PIN R2 [get_ports {Sa}]
+    set_property IOSTANDARD LVCMOS33 [get_ports {Sa}]
+
+set_property PACKAGE_PIN U16 [get_ports {La[0]}]
+    set_property IOSTANDARD LVCMOS33 [get_ports {La[0]}]
+set_property PACKAGE_PIN E19 [get_ports {La[1]}]
+    set_property IOSTANDARD LVCMOS33 [get_ports {La[1]}]
+set_property PACKAGE_PIN U19 [get_ports {La[2]}]
+    set_property IOSTANDARD LVCMOS33 [get_ports {La[2]}]
+set_property PACKAGE_PIN V19 [get_ports {Lb[0]}]
+    set_property IOSTANDARD LVCMOS33 [get_ports {Lb[0]}]
+set_property PACKAGE_PIN W18 [get_ports {Lb[1]}]
+    set_property IOSTANDARD LVCMOS33 [get_ports {Lb[1]}]
+set_property PACKAGE_PIN U15 [get_ports {Lb[2]}]
+    set_property IOSTANDARD LVCMOS33 [get_ports {Lb[2]}]
